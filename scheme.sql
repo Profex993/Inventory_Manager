@@ -26,7 +26,7 @@ CREATE TABLE boms (
 
 CREATE TABLE part_logs (
     id SERIAL PRIMARY KEY,
-    part_id INTEGER NOT NULL REFERENCES parts(id) ON DELETE SET NULL,
+    part_id INTEGER REFERENCES parts(id) ON DELETE SET NULL,
     part_name TEXT NOT NULL,
     quantity_changed INTEGER NOT NULL,   -- positive = added, negative = removed
     changed_by TEXT,
@@ -36,7 +36,7 @@ CREATE TABLE part_logs (
 
 CREATE TABLE device_logs (
     id SERIAL PRIMARY KEY,
-    device_id INTEGER NOT NULL REFERENCES devices(id) ON DELETE SET NULL,
+    device_id INTEGER REFERENCES devices(id) ON DELETE SET NULL,
     device_name TEXT NOT NULL,
     quantity_built INTEGER NOT NULL,
     built_by TEXT,
