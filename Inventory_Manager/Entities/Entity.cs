@@ -2,7 +2,7 @@
 {
     public class Entity
     {
-        
+
     }
 
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]

@@ -26,16 +26,17 @@ CREATE TABLE boms (
 
 CREATE TABLE part_logs (
     id SERIAL PRIMARY KEY,
-    part_id INTEGER NOT NULL REFERENCES parts(id) ON DELETE CASCADE,
+    part_id INTEGER REFERENCES parts(id) ON DELETE SET NULL,
+    part_name TEXT,
     quantity_changed INTEGER NOT NULL,   -- positive = added, negative = removed
     changed_by TEXT,
-    note TEXT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE device_logs (
     id SERIAL PRIMARY KEY,
-    device_id INTEGER NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+    device_id INTEGER REFERENCES devices(id) ON DELETE SET NULL,
+    device_name TEXT,
     quantity_built INTEGER NOT NULL,
     built_by TEXT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -44,8 +45,8 @@ CREATE TABLE device_logs (
 CREATE OR REPLACE FUNCTION log_new_part()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO part_logs (part_id, quantity_changed, changed_by, note)
-    VALUES (NEW.id, NEW.quantity, SESSION_USER, 'Initial stock');
+    INSERT INTO part_logs (part_id, part_name, quantity_changed, changed_by, note)
+    VALUES (NEW.id, NEW.name, NEW.quantity, SESSION_USER, 'Initial stock');
 
     RETURN NEW;
 END;
@@ -64,8 +65,8 @@ BEGIN
     diff := NEW.quantity - OLD.quantity;
 
     IF diff <> 0 THEN
-        INSERT INTO part_logs (part_id, quantity_changed, changed_by, note)
-        VALUES (NEW.id, diff, SESSION_USER, 'Quantity updated');
+        INSERT INTO part_logs (part_id, part_name, quantity_changed, changed_by)
+        VALUES (NEW.id, NEW.name, diff, SESSION_USER);
     END IF;
 
     RETURN NEW;
@@ -80,13 +81,17 @@ EXECUTE FUNCTION log_part_quantity_update();
 
 CREATE OR REPLACE FUNCTION build_device(p_device_id INTEGER, p_quantity INTEGER)
 RETURNS VOID AS $$
+DECLARE
+    device_name TEXT;
 BEGIN
     UPDATE parts
     SET quantity = quantity - (b.quantity_required * p_quantity)
     FROM boms b
     WHERE parts.id = b.part_id AND b.device_id = p_device_id;
 
-    INSERT INTO device_logs (device_id, quantity_built, built_by)
-    VALUES (p_device_id, p_quantity, SESSION_USER);
+    SELECT name INTO device_name FROM devices WHERE id = p_device_id;
+
+    INSERT INTO device_logs (device_id, device_name, quantity_built, built_by)
+    VALUES (p_device_id, device_name, p_quantity, SESSION_USER);
 END;
 $$ LANGUAGE plpgsql;

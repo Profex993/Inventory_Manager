@@ -3,7 +3,7 @@ using Npgsql;
 
 namespace Inventory_Manager.Database.DAO
 {
-    class DeviceDAO : IDAO
+    internal class DeviceDAO : IDAO
     {
         public List<Entity> GetAll()
         {
@@ -11,15 +11,23 @@ namespace Inventory_Manager.Database.DAO
 
             using var conn = DatabaseConnection.Instance.GetConnection();
             using var cmd = new NpgsqlCommand("SELECT * FROM devices", conn);
-            conn.Open();
-            using var reader = cmd.ExecuteReader();
-            while (reader.Read())
+
+            try
             {
-                devices.Add(new Device
+                conn.Open();
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
                 {
-                    Id = reader.GetInt32(0),
-                    Name = reader.GetString(1)
-                });
+                    devices.Add(new Device
+                    {
+                        Id = reader.GetInt32(reader.GetOrdinal("id")),
+                        Name = reader.GetString(reader.GetOrdinal("name"))
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to retrieve devices", ex);
             }
 
             return devices;
@@ -29,50 +37,88 @@ namespace Inventory_Manager.Database.DAO
         {
             using var conn = DatabaseConnection.Instance.GetConnection();
             using var cmd = new NpgsqlCommand("SELECT id FROM devices WHERE name = @name;", conn);
-            cmd.Parameters.AddWithValue("@name", name);
-            conn.Open();
+            cmd.Parameters.Add("@name", NpgsqlTypes.NpgsqlDbType.Text).Value = name;
 
-            var result = cmd.ExecuteScalar();
-
-            if (result == null)
+            try
             {
-                throw new Exception("Device name not found.");
-            }
+                conn.Open();
+                var result = cmd.ExecuteScalar();
 
-            return (int)result;
+                if (result == null) throw new Exception($"Device with name '{name}' not found.");
+
+                return Convert.ToInt32(result);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to get device ID by name", ex);
+            }
         }
 
-        public void Edit(Entity edited)
+        public bool Edit(Entity edited)
         {
-            Device device = edited as Device;
+            if (edited is not Device device) throw new InvalidCastException("Provided entity is not a Device.");
+
             using var conn = DatabaseConnection.Instance.GetConnection();
             using var cmd = new NpgsqlCommand(
-                "UPDATE devices " +
-                "SET name = @name " +
-                "WHERE id = @originalId;",
-            conn);
+                "UPDATE devices SET name = @name WHERE id = @originalId;",
+                conn);
 
-            cmd.Parameters.AddWithValue("@name", device.Name);
-            cmd.Parameters.AddWithValue("@originalId", device.Id);
+            try
+            {
+                cmd.Parameters.Add("@name", NpgsqlTypes.NpgsqlDbType.Text).Value = device.Name;
+                cmd.Parameters.Add("@originalId", NpgsqlTypes.NpgsqlDbType.Integer).Value = device.Id;
 
-            conn.Open();
-
-            cmd.ExecuteNonQuery();
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to edit device", ex);
+            }
         }
 
-        public void Delete(Entity delete)
+        public bool Delete(Entity delete)
         {
-            Device device = delete as Device;
+            if (delete is not Device device) throw new InvalidCastException("Provided entity is not a Device.");
+
             using var conn = DatabaseConnection.Instance.GetConnection();
             using var cmd = new NpgsqlCommand(
                 "DELETE FROM devices WHERE id = @originalId;",
-            conn);
+                conn);
 
-            cmd.Parameters.AddWithValue("@originalId", device.Id);
+            try
+            {
+                cmd.Parameters.Add("@originalId", NpgsqlTypes.NpgsqlDbType.Integer).Value = device.Id;
 
-            conn.Open();
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to delete device", ex);
+            }
+        }
 
-            cmd.ExecuteNonQuery();
+        public bool Add(Entity add)
+        {
+            if (add is not Device device) throw new InvalidCastException("Provided entity is not a Device.");
+
+            using var conn = DatabaseConnection.Instance.GetConnection();
+            using var cmd = new NpgsqlCommand(
+                "INSERT INTO devices (name) VALUES (@name);",
+                conn);
+
+            try
+            {
+                cmd.Parameters.Add("@name", NpgsqlTypes.NpgsqlDbType.Text).Value = device.Name;
+
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to add device", ex);
+            }
         }
     }
 }

@@ -2,7 +2,6 @@
 using Inventory_Manager.Database.DAO;
 using Inventory_Manager.Entities;
 using System.Collections;
-using System.Diagnostics;
 
 namespace Inventory_Manager.Forms
 {
@@ -16,7 +15,6 @@ namespace Inventory_Manager.Forms
 
             comboBox1.DataSource = TableManager.Instance.GetTableNames();
 
-            dataView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataView.ReadOnly = true;
             dataView.AllowUserToAddRows = false;
         }

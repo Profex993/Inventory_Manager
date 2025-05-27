@@ -1,16 +1,6 @@
-﻿using Inventory_Manager.Database;
-using Inventory_Manager.Database.DAO;
+﻿using Inventory_Manager.Database.DAO;
 using Inventory_Manager.Entities;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Inventory_Manager.Forms
 {
@@ -104,7 +94,7 @@ namespace Inventory_Manager.Forms
 
             try
             {
-                dao.Edit(entity);  
+                dao.Edit(entity);
             }
             catch (Exception ex)
             {

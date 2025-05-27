@@ -3,7 +3,7 @@ using Npgsql;
 
 namespace Inventory_Manager.Database.DAO
 {
-    class BomDAO : IDAO
+    internal class BomDAO : IDAO
     {
         public List<Entity> GetAll()
         {
@@ -17,27 +17,36 @@ namespace Inventory_Manager.Database.DAO
                 "INNER JOIN parts p ON b.part_id = p.id;",
             conn);
 
-            conn.Open();
-            using var reader = cmd.ExecuteReader();
-            while (reader.Read())
+            try
             {
-                boms.Add(new Bom
+                conn.Open();
+                using var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
                 {
-                    Id = reader.GetInt32(0),
-                    DeviceId = reader.GetInt32(1),
-                    PartId = reader.GetInt32(2),
-                    RequiredAmount = reader.GetInt32(3),
-                    DeviceName = reader.GetString(4),
-                    PartName = reader.GetString(5)
-                });
+                    boms.Add(new Bom
+                    {
+                        Id = reader.GetInt32(reader.GetOrdinal("id")),
+                        DeviceId = reader.GetInt32(reader.GetOrdinal("device_id")),
+                        PartId = reader.GetInt32(reader.GetOrdinal("part_id")),
+                        RequiredAmount = reader.GetInt32(reader.GetOrdinal("quantity_required")),
+                        DeviceName = reader.GetString(reader.GetOrdinal("device_name")),
+                        PartName = reader.GetString(reader.GetOrdinal("part_name"))
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to retrieve BOM entries", ex);
             }
 
             return boms;
         }
 
-        public void Edit(Entity edited)
+        public bool Edit(Entity edited)
         {
-            Bom bom = edited as Bom;
+            if (edited is not Bom bom) throw new InvalidCastException("Provided entity is not a BOM");
+
             using var conn = DatabaseConnection.Instance.GetConnection();
             using var cmd = new NpgsqlCommand(
                 "UPDATE boms " +
@@ -47,29 +56,67 @@ namespace Inventory_Manager.Database.DAO
                 "WHERE id = @originalId;",
             conn);
 
-            cmd.Parameters.AddWithValue("@device_id", bom.DeviceId);
-            cmd.Parameters.AddWithValue("@part_id", bom.PartId);
-            cmd.Parameters.AddWithValue("@quantity_required", bom.RequiredAmount);
-            cmd.Parameters.AddWithValue("@originalId", bom.Id);
+            try
+            {
+                cmd.Parameters.AddWithValue("@device_id", bom.DeviceId);
+                cmd.Parameters.AddWithValue("@part_id", bom.PartId);
+                cmd.Parameters.AddWithValue("@quantity_required", bom.RequiredAmount);
+                cmd.Parameters.AddWithValue("@originalId", bom.Id);
 
-            conn.Open();
-
-            cmd.ExecuteNonQuery();
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to edit BOM entry", ex);
+            }
         }
 
-        public void Delete(Entity delete)
+        public bool Delete(Entity delete)
         {
-            Bom bom = delete as Bom;
+            if (delete is not Bom bom) throw new InvalidCastException("Provided entity is not a BOM");
+
             using var conn = DatabaseConnection.Instance.GetConnection();
             using var cmd = new NpgsqlCommand(
                 "DELETE FROM boms WHERE id = @originalId;",
             conn);
 
-            cmd.Parameters.AddWithValue("@originalId", bom.Id);
+            try
+            {
+                cmd.Parameters.AddWithValue("@originalId", bom.Id);
 
-            conn.Open();
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to delete BOM entry", ex);
+            }
+        }
 
-            cmd.ExecuteNonQuery();
+        public bool Add(Entity add)
+        {
+            if (add is not Bom bom) throw new InvalidCastException("Provided entity is not a BOM");
+
+            using var conn = DatabaseConnection.Instance.GetConnection();
+            using var cmd = new NpgsqlCommand(
+                "INSERT INTO boms (device_id, part_id, quantity_required) " +
+                "VALUES (@device_id, @part_id, @quantity_required);",
+            conn);
+
+            try
+            {
+                cmd.Parameters.AddWithValue("@device_id", bom.DeviceId);
+                cmd.Parameters.AddWithValue("@part_id", bom.PartId);
+                cmd.Parameters.AddWithValue("@quantity_required", bom.RequiredAmount);
+
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to add BOM entry", ex);
+            }
         }
     }
 }

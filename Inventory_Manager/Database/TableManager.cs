@@ -1,7 +1,5 @@
 ﻿using Inventory_Manager.Database.DAO;
 using Inventory_Manager.Entities;
-using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Inventory_Manager.Database
 {
@@ -33,7 +31,7 @@ namespace Inventory_Manager.Database
             }
         }
 
-        private TableManager() 
+        private TableManager()
         {
             daos.Add(TableNames.Parts, typeof(PartsDAO));
             daos.Add(TableNames.PartLog, typeof(PartLogDao));

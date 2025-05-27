@@ -37,11 +37,13 @@
             // 
             // dataView
             // 
+            dataView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataView.Location = new Point(12, 46);
             dataView.Name = "dataView";
             dataView.RowHeadersWidth = 51;
-            dataView.Size = new Size(1215, 734);
+            dataView.Size = new Size(1315, 734);
             dataView.TabIndex = 0;
             dataView.CellDoubleClick += DataView_CellDoubleClick;
             // 
@@ -56,7 +58,7 @@
             // 
             // addButton
             // 
-            addButton.Location = new Point(1233, 46);
+            addButton.Location = new Point(169, 11);
             addButton.Name = "addButton";
             addButton.Size = new Size(94, 29);
             addButton.TabIndex = 2;
@@ -65,7 +67,7 @@
             // 
             // buildButton
             // 
-            buildButton.Location = new Point(1233, 81);
+            buildButton.Location = new Point(269, 11);
             buildButton.Name = "buildButton";
             buildButton.Size = new Size(94, 29);
             buildButton.TabIndex = 3;

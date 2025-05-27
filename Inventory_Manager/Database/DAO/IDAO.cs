@@ -2,10 +2,12 @@
 
 namespace Inventory_Manager.Database.DAO
 {
-    public  interface IDAO
+    public interface IDAO
     {
-        internal List<Entity> GetAll();
-        internal void Edit(Entity edited);
-        internal void Delete(Entity delete);
+        List<Entity> GetAll();
+        bool Edit(Entity edited);
+        bool Delete(Entity delete);
+        bool Add(Entity add);
+
     }
 }
