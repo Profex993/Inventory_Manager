@@ -119,5 +119,29 @@ namespace Inventory_Manager.Database.DAO
                 throw new Exception("Failed to add part", ex);
             }
         }
+
+        public List<string> GetAllNames()
+        {
+            List<string> list = [];
+            using var conn = DatabaseConnection.Instance.GetConnection();
+            using var cmd = new NpgsqlCommand("SELECT name FROM parts", conn);
+
+            try
+            {
+                conn.Open();
+
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    list.Add(reader.GetString(reader.GetOrdinal("name")));
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to get part names", ex);
+            }
+
+            return list;
+        }
     }
 }

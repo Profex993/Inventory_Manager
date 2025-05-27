@@ -3,6 +3,7 @@
     class PartLog : Entity
     {
         public int Id { get; set; }
+        public string PartName { get; set; }
         public int PartId { get; set; }
         public int QuantityChanged { get; set; }
         public string ChangedBy { get; set; }

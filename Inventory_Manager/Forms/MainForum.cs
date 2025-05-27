@@ -56,5 +56,13 @@ namespace Inventory_Manager.Forms
 
             dataView.DataSource = typedList;
         }
+
+        private void addButton_Click(object sender, EventArgs e)
+        {
+            var addForm = new AddEntityForm(currentEntityType, currentDAO);
+            addForm.ShowDialog();
+
+            LoadData();
+        }
     }
 }

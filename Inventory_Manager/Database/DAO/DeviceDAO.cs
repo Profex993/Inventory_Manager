@@ -120,5 +120,29 @@ namespace Inventory_Manager.Database.DAO
                 throw new Exception("Failed to add device", ex);
             }
         }
+
+        public List<string> GetAllNames()
+        {
+            List<string> list = [];
+            using var conn = DatabaseConnection.Instance.GetConnection();
+            using var cmd = new NpgsqlCommand("SELECT name FROM devices", conn);
+
+            try
+            {
+                conn.Open();
+
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    list.Add(reader.GetString(reader.GetOrdinal("name")));
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to get device names", ex);
+            }
+
+            return list;
+        }
     }
 }

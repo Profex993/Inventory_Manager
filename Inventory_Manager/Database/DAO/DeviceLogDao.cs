@@ -37,7 +37,8 @@ namespace Inventory_Manager.Database.DAO
                     deviceLogs.Add(new DeviceLog
                     {
                         Id = reader.GetInt32(reader.GetOrdinal("id")),
-                        DeviceId = reader.GetInt32(reader.GetOrdinal("device_id")),
+                        DeviceId = reader.IsDBNull(reader.GetOrdinal("device_id")) ? 0 : reader.GetInt32(reader.GetOrdinal("device_id")),
+                        DeviceName = reader.GetString(reader.GetOrdinal("device_name")),
                         Quantity = reader.GetInt32(reader.GetOrdinal("quantity_built")),
                         BuildBy = reader.GetString(reader.GetOrdinal("built_by")),
                         Date = reader.GetDateTime(reader.GetOrdinal("timestamp"))

@@ -37,7 +37,8 @@ namespace Inventory_Manager.Database.DAO
                     partLogs.Add(new PartLog
                     {
                         Id = reader.GetInt32(reader.GetOrdinal("id")),
-                        PartId = reader.GetInt32(reader.GetOrdinal("part_id")),
+                        PartId = reader.IsDBNull(reader.GetOrdinal("part_id")) ? 0 : reader.GetInt32(reader.GetOrdinal("part_id")),
+                        PartName = reader.GetString(reader.GetOrdinal("part_name")),
                         QuantityChanged = reader.GetInt32(reader.GetOrdinal("quantity_changed")),
                         ChangedBy = reader.GetString(reader.GetOrdinal("changed_by")),
                         Note = reader.GetString(reader.GetOrdinal("note")),
