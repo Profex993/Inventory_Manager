@@ -1,6 +1,6 @@
 ﻿namespace Inventory_Manager.Forms
 {
-    partial class MainForm
+    partial class EditEntityForm
     {
         /// <summary>
         /// Required designer variable.
@@ -30,14 +30,13 @@
         {
             SuspendLayout();
             // 
-            // MainForm
+            // EditEntityForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = SystemColors.ButtonShadow;
-            ClientSize = new Size(800, 450);
-            Name = "MainForm";
-            Text = "Inventory Manager";
+            ClientSize = new Size(365, 372);
+            Name = "EditEntityForm";
+            Text = "EditEntityForm";
             ResumeLayout(false);
         }
 
