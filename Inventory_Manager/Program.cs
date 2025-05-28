@@ -15,7 +15,18 @@ namespace Inventory_Manager
             Console.WriteLine(DatabaseConnection.Instance);
 
             ApplicationConfiguration.Initialize();
-            Application.Run(new MainForum());
+
+            using (var connectionForm = new ConnectionForm())
+            {
+                if (connectionForm.ShowDialog() == DialogResult.OK)
+                {
+                    Application.Run(new MainForum());
+                }
+                else
+                {
+                    Application.Exit();
+                }
+            }
         }
     }
 }

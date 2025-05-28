@@ -2,7 +2,7 @@
 
 namespace Inventory_Manager.Forms
 {
-    public partial class BuildDeviceForum: Form
+    public partial class BuildDeviceForum : Form
     {
         private readonly DeviceDAO dao;
         public BuildDeviceForum()
@@ -10,7 +10,7 @@ namespace Inventory_Manager.Forms
             InitializeComponent();
             this.dao = new();
 
-            DeviceName.Items.AddRange([..dao.GetAllNames()]);
+            DeviceName.Items.AddRange([.. dao.GetAllNames()]);
         }
 
         public void SaveButton_Click(object sender, EventArgs e)
