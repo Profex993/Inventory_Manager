@@ -64,16 +64,17 @@
             addButton.TabIndex = 2;
             addButton.Text = "Add";
             addButton.UseVisualStyleBackColor = true;
-            addButton.Click += addButton_Click;
+            addButton.Click += AddButton_Click;
             // 
             // buildButton
             // 
             buildButton.Location = new Point(269, 11);
             buildButton.Name = "buildButton";
-            buildButton.Size = new Size(94, 29);
+            buildButton.Size = new Size(131, 29);
             buildButton.TabIndex = 3;
-            buildButton.Text = "build";
+            buildButton.Text = "build device";
             buildButton.UseVisualStyleBackColor = true;
+            buildButton.Click += BuildDeviceButton_Click;
             // 
             // MainForum
             // 

@@ -57,10 +57,21 @@ namespace Inventory_Manager.Forms
             dataView.DataSource = typedList;
         }
 
-        private void addButton_Click(object sender, EventArgs e)
+        private void AddButton_Click(object sender, EventArgs e)
         {
-            var addForm = new AddEntityForm(currentEntityType, currentDAO);
-            addForm.ShowDialog();
+            if (currentEntityType != typeof(DeviceLog) && currentEntityType != typeof(PartLog))
+            {
+                var addForm = new AddEntityForm(currentEntityType, currentDAO);
+                addForm.ShowDialog();
+
+                LoadData();
+            }
+        }
+
+        private void BuildDeviceButton_Click(object sender, EventArgs e)
+        {
+            var buildForum = new BuildDeviceForum();
+            buildForum.ShowDialog();
 
             LoadData();
         }

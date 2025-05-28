@@ -144,5 +144,24 @@ namespace Inventory_Manager.Database.DAO
 
             return list;
         }
+
+        public bool BuildDevice(int id, int quantity)
+        {
+            using var conn = DatabaseConnection.Instance.GetConnection();
+            using var cmd = new NpgsqlCommand("SELECT build_device(@id, @quantity)", conn);
+
+            try
+            {
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@quantity", quantity);
+
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to build devices", ex);
+            }
+        }
     }
 }

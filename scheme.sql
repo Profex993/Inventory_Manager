@@ -1,10 +1,7 @@
--- Cleanup
 DROP TRIGGER IF EXISTS trg_log_new_part ON parts;
 DROP FUNCTION IF EXISTS log_new_part();
 DROP FUNCTION IF EXISTS build_device();
 DROP TABLE IF EXISTS part_logs, device_logs, boms, parts, devices CASCADE;
-
--- Tables
 
 CREATE TABLE parts (
     id SERIAL PRIMARY KEY,
@@ -43,7 +40,6 @@ CREATE TABLE device_logs (
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Trigger: log initial stock when a part is inserted
 CREATE OR REPLACE FUNCTION log_new_part()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -58,42 +54,89 @@ AFTER INSERT ON parts
 FOR EACH ROW
 EXECUTE FUNCTION log_new_part();
 
--- build_device() with detailed part usage logging
+CREATE OR REPLACE FUNCTION log_part_quantity_update()
+RETURNS TRIGGER AS $$
+DECLARE
+    suppress_log TEXT := 'false';
+BEGIN
+    BEGIN
+        suppress_log := COALESCE(current_setting('myapp.suppress_part_log', true), 'false');
+    EXCEPTION
+        WHEN OTHERS THEN
+            NULL;
+    END;
+
+    IF suppress_log <> 'true' AND NEW.quantity IS DISTINCT FROM OLD.quantity THEN
+        INSERT INTO part_logs (
+            part_id,
+            part_name,
+            quantity_changed,
+            changed_by,
+            note
+        )
+        VALUES (
+            NEW.id,
+            NEW.name,
+            NEW.quantity - OLD.quantity,
+            SESSION_USER,
+            'Manual quantity adjustment'
+        );
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_log_part_quantity_update
+AFTER UPDATE ON parts
+FOR EACH ROW
+EXECUTE FUNCTION log_part_quantity_update();
+
 CREATE OR REPLACE FUNCTION build_device(p_device_id INTEGER, p_quantity INTEGER)
 RETURNS VOID AS $$
 DECLARE
     device_name TEXT;
     part_record RECORD;
+    required_quantity INTEGER;
+    available_quantity INTEGER;
+    quantity_to_deduct INTEGER;
 BEGIN
-    -- Get device name
     SELECT name INTO device_name FROM devices WHERE id = p_device_id;
 
-    -- For each BOM entry, deduct quantity and log it
+    -- Suppress trigger-based logging
+    PERFORM set_config('myapp.suppress_part_log', 'true', true);
+
+    -- For each BOM part, deduct what we can
     FOR part_record IN
-        SELECT p.id AS part_id, p.name AS part_name, b.quantity_required
+        SELECT p.id AS part_id, p.name AS part_name, p.quantity AS available_quantity, b.quantity_required
         FROM boms b
         JOIN parts p ON p.id = b.part_id
         WHERE b.device_id = p_device_id
     LOOP
-        -- Deduct quantity
+        required_quantity := part_record.quantity_required * p_quantity;
+        available_quantity := part_record.available_quantity;
+
+        quantity_to_deduct := LEAST(available_quantity, required_quantity);
+
         UPDATE parts
-        SET quantity = quantity - (part_record.quantity_required * p_quantity)
+        SET quantity = quantity - quantity_to_deduct
         WHERE id = part_record.part_id;
 
-        -- Log part usage
         INSERT INTO part_logs (
             part_id, part_name, quantity_changed, changed_by, note
         )
         VALUES (
             part_record.part_id,
             part_record.part_name,
-            -(part_record.quantity_required * p_quantity),
+            -quantity_to_deduct,
             SESSION_USER,
-            FORMAT('Used to build %s (x%s)', device_name, p_quantity)
+            FORMAT(
+                'Used to build %s (x%s) — required %s, available %s, deducted %s',
+                device_name, p_quantity, required_quantity, available_quantity, quantity_to_deduct
+            )
         );
     END LOOP;
 
-    -- Log the device build
     INSERT INTO device_logs (device_id, device_name, quantity_built, built_by)
     VALUES (p_device_id, device_name, p_quantity, SESSION_USER);
 END;
