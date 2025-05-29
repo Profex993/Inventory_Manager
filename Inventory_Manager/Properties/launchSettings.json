@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Inventory_Manager": {
+      "commandName": "Project",
+      "commandLineArgs": "-d"
+    }
+  }
+}

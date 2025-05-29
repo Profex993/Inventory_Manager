@@ -7,25 +7,23 @@ namespace Inventory_Manager
     internal static class Program
     {
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
             //open console
-            DebugConsole.AllocConsole();
-
-            Console.WriteLine(DatabaseConnection.Instance);
-
+            if (args.Contains("-d"))
+            {
+                DebugConsole.AllocConsole();
+            }
             ApplicationConfiguration.Initialize();
 
-            using (var connectionForm = new ConnectionForm())
+            using var connectionForm = new ConnectionForm();
+            if (connectionForm.ShowDialog() == DialogResult.OK)
             {
-                if (connectionForm.ShowDialog() == DialogResult.OK)
-                {
-                    Application.Run(new MainForum());
-                }
-                else
-                {
-                    Application.Exit();
-                }
+                Application.Run(new MainForum());
+            }
+            else
+            {
+                Application.Exit();
             }
         }
     }
