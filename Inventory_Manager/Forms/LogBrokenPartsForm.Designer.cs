@@ -1,6 +1,6 @@
 ﻿namespace Inventory_Manager.Forms
 {
-    partial class AddBomForm
+    partial class LogBrokenPartsForm
     {
         /// <summary>
         /// Required designer variable.
@@ -29,8 +29,6 @@
         private void InitializeComponent()
         {
             dataGrid = new DataGridView();
-            deviceComboBox = new ComboBox();
-            deviceLabel = new Label();
             saveButton = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGrid).BeginInit();
             SuspendLayout();
@@ -39,60 +37,38 @@
             // 
             dataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGrid.Location = new Point(12, 70);
+            dataGrid.Location = new Point(12, 26);
             dataGrid.Name = "dataGrid";
             dataGrid.RowHeadersWidth = 51;
-            dataGrid.Size = new Size(597, 330);
+            dataGrid.Size = new Size(558, 373);
             dataGrid.TabIndex = 0;
-            // 
-            // deviceComboBox
-            // 
-            deviceComboBox.FormattingEnabled = true;
-            deviceComboBox.Location = new Point(73, 26);
-            deviceComboBox.Name = "deviceComboBox";
-            deviceComboBox.Size = new Size(124, 28);
-            deviceComboBox.TabIndex = 1;
-            // 
-            // deviceLabel
-            // 
-            deviceLabel.AutoSize = true;
-            deviceLabel.Location = new Point(12, 29);
-            deviceLabel.Name = "deviceLabel";
-            deviceLabel.Size = new Size(55, 20);
-            deviceLabel.TabIndex = 2;
-            deviceLabel.Text = "device:";
             // 
             // saveButton
             // 
-            saveButton.Location = new Point(12, 406);
+            saveButton.Location = new Point(12, 412);
             saveButton.Name = "saveButton";
             saveButton.Size = new Size(94, 29);
-            saveButton.TabIndex = 3;
-            saveButton.Text = "save all";
+            saveButton.TabIndex = 1;
+            saveButton.Text = "save";
             saveButton.UseVisualStyleBackColor = true;
             saveButton.Click += SaveButton_Click;
             // 
-            // AddBomForm
+            // LogBrokenPartsForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(622, 453);
+            ClientSize = new Size(582, 453);
             Controls.Add(saveButton);
-            Controls.Add(deviceLabel);
-            Controls.Add(deviceComboBox);
             Controls.Add(dataGrid);
-            Name = "AddBomForm";
-            Text = "AddBomForm";
+            Name = "LogBrokenPartsForm";
+            Text = "log broken parts";
             ((System.ComponentModel.ISupportInitialize)dataGrid).EndInit();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
 
         private DataGridView dataGrid;
-        private ComboBox deviceComboBox;
-        private Label deviceLabel;
         private Button saveButton;
     }
 }

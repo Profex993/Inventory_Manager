@@ -75,8 +75,14 @@ namespace Inventory_Manager.Forms
 
         private void BuildDeviceButton_Click(object sender, EventArgs e)
         {
-            var buildForum = new BuildDeviceForum();
-            buildForum.ShowDialog();
+            new BuildDeviceForum().ShowDialog();
+
+            LoadData();
+        }
+
+        private void LogBrokenParts_Button(object sender, EventArgs e)
+        {
+            new LogBrokenPartsForm().ShowDialog();
 
             LoadData();
         }

@@ -40,6 +40,9 @@ CREATE TABLE device_logs (
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
+
+
 CREATE OR REPLACE FUNCTION log_new_part()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -53,6 +56,8 @@ CREATE TRIGGER trg_log_new_part
 AFTER INSERT ON parts
 FOR EACH ROW
 EXECUTE FUNCTION log_new_part();
+
+
 
 CREATE OR REPLACE FUNCTION log_part_quantity_update()
 RETURNS TRIGGER AS $$
@@ -87,6 +92,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+
 CREATE TRIGGER trg_log_part_quantity_update
 AFTER UPDATE ON parts
 FOR EACH ROW
@@ -106,7 +113,6 @@ BEGIN
     -- Suppress trigger-based logging
     PERFORM set_config('myapp.suppress_part_log', 'true', true);
 
-    -- For each BOM part, deduct what we can
     FOR part_record IN
         SELECT p.id AS part_id, p.name AS part_name, p.quantity AS available_quantity, b.quantity_required
         FROM boms b
@@ -139,5 +145,35 @@ BEGIN
 
     INSERT INTO device_logs (device_id, device_name, quantity_built, built_by)
     VALUES (p_device_id, device_name, p_quantity, SESSION_USER);
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION remove_broken_part_quantity(p_part_id INTEGER, p_requested_quantity INTEGER)
+RETURNS VOID AS $$
+DECLARE
+    part_name TEXT;
+    current_quantity INTEGER;
+    quantity_to_remove INTEGER;
+BEGIN
+    SELECT name, quantity INTO part_name, current_quantity
+    FROM parts
+    WHERE id = p_part_id;
+
+    quantity_to_remove := LEAST(current_quantity, p_requested_quantity);
+
+    PERFORM set_config('myapp.suppress_part_log', 'true', true);
+
+    UPDATE parts
+    SET quantity = quantity - quantity_to_remove
+    WHERE id = p_part_id;
+
+    INSERT INTO part_logs (
+        part_id, part_name, quantity_changed, changed_by, note
+    )
+    VALUES (
+        p_part_id, part_name, -quantity_to_remove, SESSION_USER,
+        FORMAT('Broken amount: %s, actually removed: %s', p_requested_quantity, quantity_to_remove)
+    );
 END;
 $$ LANGUAGE plpgsql;

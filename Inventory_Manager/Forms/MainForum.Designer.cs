@@ -32,6 +32,7 @@
             comboBox1 = new ComboBox();
             addButton = new Button();
             buildButton = new Button();
+            brokenPartButton = new Button();
             ((System.ComponentModel.ISupportInitialize)dataView).BeginInit();
             SuspendLayout();
             // 
@@ -62,7 +63,7 @@
             addButton.Name = "addButton";
             addButton.Size = new Size(94, 29);
             addButton.TabIndex = 2;
-            addButton.Text = "Add";
+            addButton.Text = "add";
             addButton.UseVisualStyleBackColor = true;
             addButton.Click += AddButton_Click;
             // 
@@ -76,11 +77,22 @@
             buildButton.UseVisualStyleBackColor = true;
             buildButton.Click += BuildDeviceButton_Click;
             // 
+            // brokenPartButton
+            // 
+            brokenPartButton.Location = new Point(406, 12);
+            brokenPartButton.Name = "brokenPartButton";
+            brokenPartButton.Size = new Size(136, 29);
+            brokenPartButton.TabIndex = 4;
+            brokenPartButton.Text = "log broken parts";
+            brokenPartButton.UseVisualStyleBackColor = true;
+            brokenPartButton.Click += LogBrokenParts_Button;
+            // 
             // MainForum
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1339, 843);
+            Controls.Add(brokenPartButton);
             Controls.Add(buildButton);
             Controls.Add(addButton);
             Controls.Add(comboBox1);
@@ -97,5 +109,6 @@
         private ComboBox comboBox1;
         private Button addButton;
         private Button buildButton;
+        private Button brokenPartButton;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Inventory_Manager.Entities;
 using Npgsql;
+using System.Collections.Generic;
 
 namespace Inventory_Manager.Database.DAO
 {
@@ -142,6 +143,25 @@ namespace Inventory_Manager.Database.DAO
             }
 
             return list;
+        }
+
+        public void RemoveQuantity(int id, int quantity)
+        {
+            using var conn = DatabaseConnection.Instance.GetConnection();
+            using var cmd = new NpgsqlCommand("SELECT remove_broken_part_quantity(@id, @quantity)", conn);
+
+            try
+            {
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@quantity", quantity);
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to build devices", ex);
+            }
         }
     }
 }
