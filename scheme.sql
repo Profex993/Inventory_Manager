@@ -1,3 +1,12 @@
+-- creating logins
+CREATE ROLE inventory_user WITH LOGIN PASSWORD '1234';
+GRANT USAGE ON SCHEMA public TO inventory_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON parts, devices, boms TO inventory_user;
+GRANT SELECT, INSERT ON part_logs, device_logs TO inventory_user;
+GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO inventory_user;
+GRANT EXECUTE ON FUNCTION build_device(integer, integer) TO inventory_user;
+GRANT EXECUTE ON FUNCTION remove_broken_part_quantity(integer, integer) TO inventory_user;
+
 DROP TRIGGER IF EXISTS trg_log_new_part ON parts;
 DROP FUNCTION IF EXISTS log_new_part();
 DROP FUNCTION IF EXISTS build_device();
@@ -39,7 +48,6 @@ CREATE TABLE device_logs (
     built_by TEXT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 
 
 
@@ -99,6 +107,7 @@ AFTER UPDATE ON parts
 FOR EACH ROW
 EXECUTE FUNCTION log_part_quantity_update();
 
+
 CREATE OR REPLACE FUNCTION build_device(p_device_id INTEGER, p_quantity INTEGER)
 RETURNS VOID AS $$
 DECLARE
@@ -108,7 +117,14 @@ DECLARE
     available_quantity INTEGER;
     quantity_to_deduct INTEGER;
 BEGIN
+	IF p_quantity IS NULL OR p_quantity <= 0 THEN
+        RAISE EXCEPTION 'Quantity to build must be a positive integer, got %', p_quantity;
+    END IF;
+	
     SELECT name INTO device_name FROM devices WHERE id = p_device_id;
+    IF device_name IS NULL THEN
+        RAISE EXCEPTION 'Device with id % does not exist', p_device_id;
+    END IF;
 
     -- Suppress trigger-based logging
     PERFORM set_config('myapp.suppress_part_log', 'true', true);
@@ -156,9 +172,16 @@ DECLARE
     current_quantity INTEGER;
     quantity_to_remove INTEGER;
 BEGIN
+IF p_requested_quantity IS NULL OR p_requested_quantity <= 0 THEN
+        RAISE EXCEPTION 'Requested quantity must be a positive integer, got %', p_requested_quantity;
+    END IF;
+	
     SELECT name, quantity INTO part_name, current_quantity
     FROM parts
     WHERE id = p_part_id;
+	IF part_name IS NULL THEN
+        RAISE EXCEPTION 'Part with id % does not exist', p_part_id;
+    END IF;
 
     quantity_to_remove := LEAST(current_quantity, p_requested_quantity);
 
