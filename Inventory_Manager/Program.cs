@@ -1,4 +1,3 @@
-using Inventory_Manager.Database;
 using Inventory_Manager.Forms;
 using Inventory_Manager.Utils;
 

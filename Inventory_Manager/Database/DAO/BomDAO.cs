@@ -118,5 +118,36 @@ namespace Inventory_Manager.Database.DAO
                 throw new Exception("Failed to add BOM entry", ex);
             }
         }
+
+        public void AddAll(IEnumerable<Entity> entities)
+        {
+            List<Bom> boms = entities as List<Bom>;
+            using var conn = DatabaseConnection.Instance.GetConnection();
+
+            conn.Open();
+            using var tran = conn.BeginTransaction();
+
+            try
+            {
+                foreach (Bom bom in boms)
+                {
+                    using var cmd = new NpgsqlCommand(
+                                        "INSERT INTO boms (device_id, part_id, quantity_required) " +
+                                        "VALUES (@device_id, @part_id, @quantity_required);",
+                                    conn, tran);
+                    cmd.Parameters.AddWithValue("@device_id", bom.DeviceId);
+                    cmd.Parameters.AddWithValue("@part_id", bom.PartId);
+                    cmd.Parameters.AddWithValue("@quantity_required", bom.RequiredAmount);
+                    cmd.ExecuteNonQuery();
+                }
+
+                tran.Commit();
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw new Exception("Failed to add BOM entries", ex);
+            }
+        }
     }
 }

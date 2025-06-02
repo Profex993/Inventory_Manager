@@ -26,21 +26,7 @@ namespace Inventory_Manager.Forms
             {
                 if (prop.GetCustomAttribute<IdAttribute>() != null) continue;
 
-                Control inputControl = null;
-
-                if (entityType == typeof(Bom))
-                {
-                    inputControl = prop.Name switch
-                    {
-                        "DeviceName" => CreateComboBox(prop.Name, y, [.. new DeviceDAO().GetAllNames()]),
-                        "PartName" => CreateComboBox(prop.Name, y, [.. new PartsDAO().GetAllNames()]),
-                        _ => CreateTextBox(prop.Name, y)
-                    };
-                }
-                else
-                {
-                    inputControl = CreateTextBox(prop.Name, y);
-                }
+                Control inputControl = CreateTextBox(prop.Name, y);
 
                 var label = new Label
                 {
@@ -64,20 +50,6 @@ namespace Inventory_Manager.Forms
             };
             saveButton.Click += SaveButton_Click;
             Controls.Add(saveButton);
-        }
-
-        private ComboBox CreateComboBox(string name, int y, string[] items)
-        {
-            var comboBox = new ComboBox
-            {
-                Name = name,
-                Top = y,
-                Left = 120,
-                Width = 200,
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            comboBox.Items.AddRange(items);
-            return comboBox;
         }
 
         private TextBox CreateTextBox(string name, int y)

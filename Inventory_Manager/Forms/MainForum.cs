@@ -61,9 +61,14 @@ namespace Inventory_Manager.Forms
         {
             if (currentEntityType != typeof(DeviceLog) && currentEntityType != typeof(PartLog))
             {
-                var addForm = new AddEntityForm(currentEntityType, currentDAO);
-                addForm.ShowDialog();
-
+                if (currentEntityType == typeof(Bom))
+                {
+                    new AddBomForm(currentDAO).ShowDialog();
+                }
+                else
+                {
+                    new AddEntityForm(currentEntityType, currentDAO).ShowDialog();
+                }
                 LoadData();
             }
         }
