@@ -3,7 +3,7 @@ using Inventory_Manager.Entities;
 
 namespace Inventory_Manager.Forms
 {
-    public partial class LogBrokenPartsForm: Form
+    public partial class LogBrokenPartsForm : Form
     {
         private readonly PartsDAO dao = new();
         public LogBrokenPartsForm()
@@ -63,7 +63,7 @@ namespace Inventory_Manager.Forms
                     return;
                 }
 
-                foreach(Part part in parts)
+                foreach (Part part in parts)
                 {
                     dao.RemoveQuantity(part.Id, part.Quantity);
                 }

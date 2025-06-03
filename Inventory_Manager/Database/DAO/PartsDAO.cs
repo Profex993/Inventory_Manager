@@ -1,6 +1,5 @@
 ﻿using Inventory_Manager.Entities;
 using Npgsql;
-using System.Collections.Generic;
 
 namespace Inventory_Manager.Database.DAO
 {
@@ -161,6 +160,50 @@ namespace Inventory_Manager.Database.DAO
             catch (Exception ex)
             {
                 throw new Exception("Failed to build devices", ex);
+            }
+        }
+
+
+        public List<PartRequirement> CalculateBOMlist(int deviceId, int numberOfDevices)
+        {
+            List<PartRequirement> parts = [];
+
+            using var conn = DatabaseConnection.Instance.GetConnection();
+            using var cmd = new NpgsqlCommand(
+                "SELECT p.name AS part_name, p.quantity AS inventory_quantity, quantity_required FROM boms b " +
+                "INNER JOIN parts p ON p.id = b.part_id " +
+                "WHERE device_id = @deviceId;",
+            conn);
+
+            cmd.Parameters.AddWithValue("@deviceId", deviceId);
+
+            try
+            {
+                conn.Open();
+
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    int quantityInInventory = reader.GetInt32(reader.GetOrdinal("inventory_quantity"));
+                    int quantityRequired = reader.GetInt32(reader.GetOrdinal("quantity_required")) * numberOfDevices;
+
+                    int diff = quantityInInventory - quantityRequired;
+
+                    if (diff < 0)
+                    {
+                        parts.Add(new PartRequirement
+                        {
+                            Name = reader.GetString(reader.GetOrdinal("part_name")),
+                            Quantity = Math.Abs(diff)
+                        });
+                    }
+                }
+
+                return parts;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("error while calculating BOM list", ex);
             }
         }
     }

@@ -33,6 +33,7 @@
             addButton = new Button();
             buildButton = new Button();
             brokenPartButton = new Button();
+            calculateButton = new Button();
             ((System.ComponentModel.ISupportInitialize)dataView).BeginInit();
             SuspendLayout();
             // 
@@ -85,13 +86,24 @@
             brokenPartButton.TabIndex = 4;
             brokenPartButton.Text = "log broken parts";
             brokenPartButton.UseVisualStyleBackColor = true;
-            brokenPartButton.Click += LogBrokenParts_Button;
+            brokenPartButton.Click += LogBrokenPartsButton_Click;
+            // 
+            // calculateButton
+            // 
+            calculateButton.Location = new Point(548, 11);
+            calculateButton.Name = "calculateButton";
+            calculateButton.Size = new Size(123, 29);
+            calculateButton.TabIndex = 5;
+            calculateButton.Text = "calculate BOM";
+            calculateButton.UseVisualStyleBackColor = true;
+            calculateButton.Click += CalculateButton_Click;
             // 
             // MainForum
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1339, 843);
+            Controls.Add(calculateButton);
             Controls.Add(brokenPartButton);
             Controls.Add(buildButton);
             Controls.Add(addButton);
@@ -110,5 +122,6 @@
         private Button addButton;
         private Button buildButton;
         private Button brokenPartButton;
+        private Button calculateButton;
     }
 }

@@ -80,11 +80,16 @@ namespace Inventory_Manager.Forms
             LoadData();
         }
 
-        private void LogBrokenParts_Button(object sender, EventArgs e)
+        private void LogBrokenPartsButton_Click(object sender, EventArgs e)
         {
             new LogBrokenPartsForm().ShowDialog();
 
             LoadData();
+        }
+
+        private void CalculateButton_Click(object sender, EventArgs e)
+        {
+            new BOMcalculatorForm().ShowDialog();
         }
     }
 }
