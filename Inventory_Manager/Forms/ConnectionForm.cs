@@ -1,4 +1,5 @@
 ﻿using Inventory_Manager.Database;
+using Inventory_Manager.Utils;
 using System.Text.Json;
 
 namespace Inventory_Manager.Forms
@@ -41,7 +42,7 @@ namespace Inventory_Manager.Forms
 
                 DatabaseConnection.TestConnection(HostInput.Text, UsernameInput.Text, PasswordInput.Text);
 
-                _ = new DatabaseConnection(HostInput.Text, UsernameInput.Text, PasswordInput.Text);
+                DatabaseConnection.Initialize(HostInput.Text, UsernameInput.Text, PasswordInput.Text);
 
                 this.DialogResult = DialogResult.OK;
             }

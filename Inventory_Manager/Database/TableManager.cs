@@ -3,6 +3,7 @@ using Inventory_Manager.Entities;
 
 namespace Inventory_Manager.Database
 {
+    //singleton for managing tables
     class TableManager
     {
         private static TableManager? _instance;
@@ -15,8 +16,8 @@ namespace Inventory_Manager.Database
             Bom
         }
 
-        private readonly Dictionary<TableNames, Type> daos = new();
-        private readonly Dictionary<TableNames, Type> entityTypes = new();
+        private readonly Dictionary<TableNames, Type> daos = [];
+        private readonly Dictionary<TableNames, Type> entityTypes = [];
 
         public static TableManager Instance
         {
@@ -46,16 +47,30 @@ namespace Inventory_Manager.Database
             entityTypes.Add(TableNames.Bom, typeof(Bom));
         }
 
+        /// <summary>
+        /// get dao for given table
+        /// </summary>
+        /// <param name="tableName">string name of table</param>
+        /// <returns>IDAO instance</returns>
         public IDAO GetDAO(string tableName)
         {
             return (IDAO)Activator.CreateInstance(daos[Enum.Parse<TableNames>(tableName)]);
         }
 
+        /// <summary>
+        /// get typeof entity for a table
+        /// </summary>
+        /// <param name="tableName">table name</param>
+        /// <returns>typeof entity tied to a table</returns>
         public Type GetEntityType(string tableName)
         {
             return entityTypes[Enum.Parse<TableNames>(tableName)];
         }
 
+        /// <summary>
+        /// get all table names
+        /// </summary>
+        /// <returns>List of string names</returns>
         public List<string> GetTableNames()
         {
             return [.. Enum.GetNames<TableNames>()];

@@ -1,4 +1,4 @@
--- creating logins
+-- create login example
 CREATE ROLE inventory_user WITH LOGIN PASSWORD '1234';
 GRANT USAGE ON SCHEMA public TO inventory_user;
 GRANT SELECT, INSERT, UPDATE, DELETE ON parts, devices, boms TO inventory_user;
@@ -7,11 +7,13 @@ GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO inventory_user;
 GRANT EXECUTE ON FUNCTION build_device(integer, integer) TO inventory_user;
 GRANT EXECUTE ON FUNCTION remove_broken_part_quantity(integer, integer) TO inventory_user;
 
+-- clean up database
 DROP TRIGGER IF EXISTS trg_log_new_part ON parts;
 DROP FUNCTION IF EXISTS log_new_part();
 DROP FUNCTION IF EXISTS build_device();
 DROP TABLE IF EXISTS part_logs, device_logs, boms, parts, devices CASCADE;
 
+--tables
 CREATE TABLE parts (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
@@ -23,6 +25,7 @@ CREATE TABLE devices (
     name TEXT NOT NULL UNIQUE
 );
 
+-- short for bill of material, meaning list of material needed for a device
 CREATE TABLE boms (
     id SERIAL PRIMARY KEY,
     device_id INTEGER NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
@@ -30,6 +33,8 @@ CREATE TABLE boms (
     quantity_required INTEGER NOT NULL
 );
 
+
+-- log tables
 CREATE TABLE part_logs (
     id SERIAL PRIMARY KEY,
     part_id INTEGER REFERENCES parts(id) ON DELETE SET NULL,
@@ -50,7 +55,7 @@ CREATE TABLE device_logs (
 );
 
 
-
+-- trigger for new parts
 CREATE OR REPLACE FUNCTION log_new_part()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -66,14 +71,14 @@ FOR EACH ROW
 EXECUTE FUNCTION log_new_part();
 
 
-
+-- triger for part quantity update
 CREATE OR REPLACE FUNCTION log_part_quantity_update()
 RETURNS TRIGGER AS $$
 DECLARE
     suppress_log TEXT := 'false';
 BEGIN
     BEGIN
-        suppress_log := COALESCE(current_setting('myapp.suppress_part_log', true), 'false');
+        suppress_log := COALESCE(current_setting('myapp.suppress_part_log', true), 'false'); -- prevent excesive logging when using build_device procedure
     EXCEPTION
         WHEN OTHERS THEN
             NULL;
@@ -81,18 +86,10 @@ BEGIN
 
     IF suppress_log <> 'true' AND NEW.quantity IS DISTINCT FROM OLD.quantity THEN
         INSERT INTO part_logs (
-            part_id,
-            part_name,
-            quantity_changed,
-            changed_by,
-            note
+            part_id, part_name, quantity_changed, changed_by, note
         )
         VALUES (
-            NEW.id,
-            NEW.name,
-            NEW.quantity - OLD.quantity,
-            SESSION_USER,
-            'Manual quantity adjustment'
+            NEW.id, NEW.name, NEW.quantity - OLD.quantity, SESSION_USER, 'Manual quantity adjustment'
         );
     END IF;
 
@@ -100,14 +97,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
-
 CREATE TRIGGER trg_log_part_quantity_update
 AFTER UPDATE ON parts
 FOR EACH ROW
 EXECUTE FUNCTION log_part_quantity_update();
 
 
+-- procedure for building devices
 CREATE OR REPLACE FUNCTION build_device(p_device_id INTEGER, p_quantity INTEGER)
 RETURNS VOID AS $$
 DECLARE
@@ -165,6 +161,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+-- procedure for removing amount of parts
 CREATE OR REPLACE FUNCTION remove_broken_part_quantity(p_part_id INTEGER, p_requested_quantity INTEGER)
 RETURNS VOID AS $$
 DECLARE

@@ -1,4 +1,4 @@
-﻿
+﻿//short for bill of material
 namespace Inventory_Manager.Entities
 {
     class Bom : Entity

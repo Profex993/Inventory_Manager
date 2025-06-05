@@ -1,11 +1,18 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace Inventory_Manager
+//utility class for saving password into a file
+namespace Inventory_Manager.Utils
 {
     class PasswordStorage
     {
         public static string filePath = "./credentials.json";
+
+        /// <summary>
+        /// encrypt plaintet password
+        /// </summary>
+        /// <param name="plainText">plaintext password</param>
+        /// <returns></returns>
         public static string Encrypt(string plainText)
         {
             byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
@@ -13,6 +20,11 @@ namespace Inventory_Manager
             return Convert.ToBase64String(encryptedBytes);
         }
 
+        /// <summary>
+        /// decrypt encrypted password
+        /// </summary>
+        /// <param name="encryptedText">password hash</param>
+        /// <returns>plaintext password</returns>
         public static string Decrypt(string encryptedText)
         {
             byte[] encryptedBytes = Convert.FromBase64String(encryptedText);

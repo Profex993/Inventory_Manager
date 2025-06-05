@@ -8,13 +8,15 @@ namespace Inventory_Manager
         [STAThread]
         static void Main(string[] args)
         {
-            //open console
+            //check for -d argument which opens console
             if (args.Contains("-d"))
             {
                 DebugConsole.AllocConsole();
             }
+
             ApplicationConfiguration.Initialize();
 
+            //show database connection forum and continue based on output
             using var connectionForm = new ConnectionForm();
             if (connectionForm.ShowDialog() == DialogResult.OK)
             {
@@ -22,6 +24,7 @@ namespace Inventory_Manager
             }
             else
             {
+                MessageBox.Show("Invalid connection credentials!", "Failed to connect", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Application.Exit();
             }
         }
