@@ -28,10 +28,11 @@ PostgreSQL instance with access
 
 ##### Setup:
 1. Download release
-2. Run scheme.sql in the PostgreSQL database
-3. Create logins for other users (check scheme.sql for help)
-4. Run the app and connect to PostgreSQL instance
-5. Done
+2. Create database `inventory`
+3. Run scheme.sql in the PostgreSQL database
+4. Create logins for other users (check scheme.sql for help)
+5. Run the app and connect to PostgreSQL instance
+6. Done
 
 For troubleshooting run the app with argument `-d` to open debug console.
 
